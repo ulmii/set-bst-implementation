@@ -27,18 +27,18 @@ class MySet
 
 	friend std::ostream& operator<<(std::ostream& os, const MySet<T> &set)
     {
-        return os << set.tree;
+        return os << set._tree;
     }
 
     friend void swap(MySet<T>& first, MySet<T>& second) noexcept
     {
         using std::swap;
 
-        swap(first.tree, second.tree);
+        swap(first._tree, second._tree);
     }
 
 	public:
-        MySet() : tree() { log("SET constructor"); }
+        MySet() : _tree() { log("SET constructor"); }
         MySet(const MySet& other) = default;
         MySet(MySet&& other) noexcept = default;
         ~MySet() = default;
@@ -49,14 +49,14 @@ class MySet
         bool insert(T value);
         T search(T value) const;
         void remove(T removeVal);
-        bool empty() const { return tree.isEmpty() == nullptr; }
-        int size() const { return tree.size(); }
+        bool empty() const { return _tree.isEmpty() == nullptr; }
+        int size() const { return _tree.size(); }
         
         Iterator begin() const;
         Iterator end() const;
 
 	private:
-		BSTree<T> tree;
+		BSTree<T> _tree;
 
         void log(const char* msg) const
         {
@@ -67,7 +67,7 @@ class MySet
 template <typename T>
 bool MySet<T>::Iterator::operator==(const Iterator &it) const
 {
-    return _set->tree.getRoot() == it._set->tree.getRoot() && _currNode == it._currNode;
+    return _set->_tree.getRoot() == it._set->_tree.getRoot() && _currNode == it._currNode;
 }
 
 template <typename T>
@@ -76,7 +76,7 @@ typename MySet<T>::Iterator& MySet<T>::Iterator::operator++()
     typename BSTree<T>::Node* temp;
     if(_currNode == nullptr)
         {
-            _currNode = _set->tree.getRoot();
+            _currNode = _set->_tree.getRoot();
 
             if(_currNode == nullptr)
             {
@@ -143,7 +143,7 @@ auto MySet<T>::Iterator::operator->() const -> T*
 template <typename T>
 typename MySet<T>::Iterator MySet<T>::begin() const 
 {  
-    typename BSTree<T>::Node* temp = tree.getRoot();
+    typename BSTree<T>::Node* temp = _tree.getRoot();
     if(temp != nullptr) {
         while(temp->left != nullptr)
         {
@@ -186,8 +186,8 @@ MySet<T>& MySet<T>::operator=(MySet<T>&& other)
 template <typename T>
 bool MySet<T>::insert(T value)
 {
-	if(tree.search(value) == nullptr)
-		if(tree.insert(value) != nullptr)
+	if(_tree.search(value) == nullptr)
+		if(_tree.insert(value) != nullptr)
             return true;
     return false;
 }
@@ -195,15 +195,15 @@ bool MySet<T>::insert(T value)
 template <typename T>
 void MySet<T>::remove(T value)
 {
-	tree.remove(value);
+	_tree.remove(_tree.getRoot(), value);
 }
 
 template <typename T>
 auto MySet<T>::search(T value) const -> T
 {
-    typename BSTree<T>::Node* temp = tree.search(value);
+    typename BSTree<T>::Node* temp = _tree.search(value);
     if(temp!=nullptr)
         return temp->value;
     else
-        throw std::invalid_argument("Value not present in the tree");
+        throw std::invalid_argument("Value not present in the _tree");
 }
