@@ -47,8 +47,8 @@ class MySet
         MySet<T>& operator=(const MySet<T>& other);
         MySet<T>& operator=(MySet<T>&& other);
 
-        bool insert(T value);
-        T search(T value) const;
+        std::pair<Iterator, bool> insert(const T& value);
+        Iterator search(const T& value) const;
         void remove(T removeVal);
         bool empty() const { return _tree.isEmpty() == nullptr; }
         int size() const { return _tree.size(); }
@@ -181,12 +181,19 @@ MySet<T>& MySet<T>::operator=(MySet<T>&& other)
 }
 
 template <typename T>
-bool MySet<T>::insert(T value)
+std::pair<typename MySet<T>::Iterator, bool> MySet<T>::insert(const T& value)
 {
-	if(_tree.search(value) == nullptr)
-		if(_tree.insert(value) != nullptr)
-            return true;
-    return false;
+    typename BSTree<T>::Node* search = _tree.search(value);
+    
+	if(search == nullptr)
+	{
+	    typename BSTree<T>::Node* temp = _tree.insert(value);
+        return std::pair<Iterator, bool>(Iterator(temp, this), true);
+	}
+	else
+	{
+        return std::pair<Iterator, bool>(Iterator(search, this), false);
+	}
 }
 
 template <typename T>
@@ -196,11 +203,11 @@ void MySet<T>::remove(T value)
 }
 
 template <typename T>
-auto MySet<T>::search(T value) const -> T
+typename MySet<T>::Iterator MySet<T>::search(const T& value) const
 {
     typename BSTree<T>::Node* temp = _tree.search(value);
     if(temp!=nullptr)
-        return temp->value;
+        return Iterator(temp, this);
     else
         throw std::invalid_argument("Value not present in the _tree");
 }
