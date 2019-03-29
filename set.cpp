@@ -76,44 +76,40 @@ typename MySet<T>::Iterator& MySet<T>::Iterator::operator++()
 {
     typename BSTree<T>::Node* temp;
     if(_currNode == nullptr)
+    {
+        _currNode = _set->_tree.getRoot();
+
+        if(_currNode == nullptr)
         {
-            _currNode = _set->_tree.getRoot();
-
-            if(_currNode == nullptr)
-            {
-                throw std::invalid_argument("MySet<T>::Iterator::operator++\n : Set is empty");
-            }
-
-            while(_currNode->left != nullptr)
-            {
-                _currNode = _currNode->left;
-            }
+            throw std::invalid_argument("MySet<T>::Iterator::operator++\n : Set is empty");
         }
+
+        while(_currNode->left != nullptr)
+        {
+            _currNode = _currNode->left;
+        }
+    }
+    else if (_currNode->right != nullptr)
+    {
+         _currNode = _currNode->right;
+
+        while(_currNode->left!=nullptr)
+        {
+            _currNode = _currNode->left;
+        }
+    }
     else
     {
-        if(_currNode->right != nullptr)
+        temp = _currNode->parent;
+        while(temp != nullptr && _currNode == temp->right)
         {
-            _currNode = _currNode->right;
-
-            while(_currNode->left!=nullptr)
-            {
-                _currNode = _currNode->left;
-            }
-        }
-        else
-        {
-            temp = _currNode->parent;
-            while(temp != nullptr && _currNode == temp->right)
-            {
-                _currNode = temp;
-                temp = temp->parent;
-            }
-
             _currNode = temp;
+            temp = temp->parent;
         }
 
-        return *this;
+        _currNode = temp;
     }
+    return *this;
 }
 
 template <typename T>
