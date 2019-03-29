@@ -20,7 +20,7 @@ class BSTree
     public:
         struct Node {
             T value;
-            Node *left, *right, *parent;
+            Node *left = nullptr, *right = nullptr, *parent = nullptr;
         };
 
         BSTree() : root(nullptr) { log("BST constructor"); }
