@@ -34,8 +34,7 @@ class BSTree
         bool isEmpty() const { return root == nullptr; }
         Node* insert(T value);
         Node* search(T value) const;
-        void remove(Node* removeNode);
-        void remove(T removeVal);
+        Node* remove(Node* root, const T& removeVal);
         Node* getRoot() const { return root; }
         int size() const { return helperSize(getRoot()); }
  
@@ -209,91 +208,50 @@ auto BSTree<T>::search(T value) const -> Node*
 }
  
 template <typename T>
-void BSTree<T>::remove(Node* rmNode)
+auto BSTree<T>::remove(Node* root, const T& removeVal) -> Node*
 {
-    if(rmNode == nullptr)
+    if(root == nullptr)
+        return nullptr; 
+
+    if(root->value > removeVal) 
+    { 
+        root->left = remove(root->left, removeVal);
+    } 
+    else if(root->value < removeVal) 
     {
-        log("Can't delete, Node is a null pointer");
-        return;
-    }
- 
-    if(rmNode != nullptr)
+        root->right = remove(root->right, removeVal); 
+
+    } 
+    else 
     {
-        if (rmNode->left == nullptr && rmNode->right == nullptr) 
+        if(root->left == nullptr) 
         {
-            Node* parent = rmNode->parent;
- 
-            if(parent->left == rmNode)
-                parent->left = nullptr;
-            else if (parent->right == rmNode)
-                parent->right = nullptr;
- 
-        delete rmNode;
-        }
-        else if( (rmNode->left != nullptr && rmNode->right == nullptr) )
+            Node* temp = root->right;
+
+            if(temp != nullptr) 
+                root->right->parent = root->parent;
+
+            delete root;
+            return temp;
+        } 
+        else if(root->right == nullptr) 
         {
-            Node* parent = rmNode->parent;
- 
-            if (parent->left == rmNode)
-                parent->left = rmNode->left;
-            else if (parent->right == rmNode)
-                parent->right = rmNode->left;
- 
-            delete rmNode;
+            Node* temp = root->left;
+            if(temp != nullptr)
+                root->left->parent = root->parent;
+
+            delete root;
+            return temp;
         }
- 
-        else if(rmNode->left == nullptr && rmNode->right != nullptr)
-        {
-            Node* parent = rmNode->parent;
- 
-            if(parent->left == rmNode)
-                parent->left = rmNode->right;
-            else if (parent->right == rmNode)
-                parent->right = rmNode->right;
- 
-            delete rmNode;
-        }
-        else if (rmNode->left != nullptr && rmNode->right != nullptr) 
-        {
-            Node* successor = rmNode->right;
- 
-            if(successor->left == nullptr)
-            {
-                T tempVal = successor->value;
- 
-                remove(successor->value);
- 
-        rmNode->value = tempVal;
-                return;
-            }
- 
-            else if (successor->left != nullptr)
-            {
-                Node* temp = successor;
- 
-                while (temp != nullptr)
-                {
-                    successor = temp;
-                    temp = temp->left;
-                }
- 
-                T tempVal = successor->value;
- 
-                remove(successor->value);
- 
-                rmNode->value = tempVal;
-                return;
-            }
-        }
-    }
-}
- 
-template <typename T>
-void BSTree<T>::remove(T removeVal)
-{
-    Node* rmNode = search(removeVal);
-    if(rmNode != nullptr)
-        remove(rmNode);
-    else
-        log("Can't delete, value is not present in the tree");
+
+        Node* temp = root->right;
+    
+        while(temp->left != nullptr) 
+        temp = temp->left;
+
+        root->value = temp->value;
+        root->right = remove(root->right, temp->value); 
+  }
+
+  return root;
 }
