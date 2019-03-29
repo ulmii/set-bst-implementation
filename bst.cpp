@@ -37,7 +37,7 @@ class BSTree
         Node* remove(Node* root, const T& removeVal);
         Node* getRoot() const { return root; }
         int size() const { return helperSize(getRoot()); }
- 
+
     private:
         Node* root;
  
@@ -59,10 +59,13 @@ class BSTree
             {
                 origin = new Node;
                 origin->value = sourceNode->value;
+
                 copy(origin->left, sourceNode->left);
+                if(origin->left != nullptr) origin->left->parent = origin;
+
                 copy(origin->right, sourceNode->right);
+                if(origin->right != nullptr) origin->right->parent = origin;
             }
- 
         }
  
         //postOrder
