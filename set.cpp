@@ -16,6 +16,7 @@ class MySet
             Iterator operator++(int);
             T& operator*() const;
             T* operator->() const;   
+            operator bool() const { return !(this->_currNode == nullptr); } 
 
         private:
             Iterator(typename BSTree<T>::Node* node, const MySet<T>* set) 
