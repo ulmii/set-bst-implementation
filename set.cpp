@@ -209,5 +209,5 @@ typename MySet<T>::Iterator MySet<T>::search(const T& value) const
     if(temp!=nullptr)
         return Iterator(temp, this);
     else
-        throw std::invalid_argument("Value not present in the _tree");
+        return Iterator(nullptr, this);
 }
