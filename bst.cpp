@@ -19,8 +19,8 @@ class BSTree
  
     public:
         struct Node {
-            T value;
-            Node *left = nullptr, *right = nullptr, *parent = nullptr;
+            T value{};
+            Node *left = nullptr, *right = nullptr;
         };
 
         BSTree() : root(nullptr) { log("BST constructor"); }
@@ -37,6 +37,7 @@ class BSTree
         Node* remove(Node* root, const T& removeVal);
         Node* getRoot() const { return root; }
         int size() const { return helperSize(getRoot()); }
+        Node* findParent(const T& x) const { return findParent(getRoot(), x); }
 
     private:
         Node* root;
@@ -61,21 +62,18 @@ class BSTree
                 origin->value = sourceNode->value;
 
                 copy(origin->left, sourceNode->left);
-                if(origin->left != nullptr) origin->left->parent = origin;
-
                 copy(origin->right, sourceNode->right);
-                if(origin->right != nullptr) origin->right->parent = origin;
             }
         }
  
-        //postOrder
+        //inorder
         void printBST(std::ostream& os, Node* pass) const
         {
             if (pass != nullptr)
             {
                 printBST(os, pass->left);
-                printBST(os, pass->right);
                 std::cout << pass->value << " ";
+                printBST(os, pass->right);
             }
         }
  
@@ -90,6 +88,24 @@ class BSTree
         void log(const char* msg) const
         {
             std::cout << "[" << this << "] " << msg << "\n";
+        }
+
+         Node* findParent(Node* node, const T& x) const
+        {
+            if(node == nullptr)
+                return nullptr;
+
+            if(node->left == nullptr && node->right == nullptr)
+                return nullptr;
+            
+            if( (node->left != NULL && node->left->value == x) || (node->right != NULL && node->right->value == x))
+                 return node;
+
+            if(node->value > x)
+                return findParent(node->left, x);
+
+            if(node->value <= x)
+                return findParent(node->right, x);
         }
 };
  
@@ -161,7 +177,7 @@ auto BSTree<T>::insert(T value) -> Node*
                 temp = temp->right;
             }
  
-            else if (value < temp->value)
+            else if (value <= temp->value)
             {
                 temp2 = temp;
                 temp = temp->left;
@@ -171,12 +187,10 @@ auto BSTree<T>::insert(T value) -> Node*
         if (value > temp2->value)
         {
             temp2->right = pass;
-            pass->parent = temp2;
         }
-        else if(value < temp2->value)
+        else if(value <= temp2->value)
         {
             temp2->left = pass;
-            pass->parent = temp2;
         }
  
         return pass;
@@ -202,7 +216,7 @@ auto BSTree<T>::search(T value) const -> Node*
         else if (value > temp->value)
             temp = temp->right;
  
-        else if (value < temp->value)
+        else if (value <= temp->value)
             temp = temp->left;
     }
  
@@ -231,17 +245,12 @@ auto BSTree<T>::remove(Node* root, const T& removeVal) -> Node*
         {
             Node* temp = root->right;
 
-            if(temp != nullptr) 
-                root->right->parent = root->parent;
-
             delete root;
             return temp;
         } 
         else if(root->right == nullptr) 
         {
             Node* temp = root->left;
-            if(temp != nullptr)
-                root->left->parent = root->parent;
 
             delete root;
             return temp;
@@ -250,7 +259,7 @@ auto BSTree<T>::remove(Node* root, const T& removeVal) -> Node*
         Node* temp = root->right;
     
         while(temp->left != nullptr) 
-        temp = temp->left;
+            temp = temp->left;
 
         root->value = temp->value;
         root->right = remove(root->right, temp->value); 

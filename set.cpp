@@ -1,4 +1,4 @@
-#include <stdexcept> 
+#include <stdexcept>
 #include "bst.cpp"
 
 template <typename T>
@@ -14,13 +14,13 @@ class MySet
             bool operator!=(const Iterator &it) const { return !(*this == it); }
             Iterator& operator++();
             Iterator operator++(int);
-            T& operator*() const;
-            T* operator->() const;   
-            operator bool() const { return !(this->_currNode == nullptr); } 
+            const T& operator*() const;
+            const T* operator->() const;
+            operator bool() const { return !(this->_currNode == nullptr); }
 
         private:
-            Iterator(typename BSTree<T>::Node* node, const MySet<T>* set) 
-                : _currNode(node), _set(set) {} 
+            Iterator(typename BSTree<T>::Node* node, const MySet<T>* set)
+                : _currNode(node), _set(set) {}
 
             typename BSTree<T>::Node* _currNode;
             const MySet<T>* _set;
@@ -52,7 +52,7 @@ class MySet
         void remove(T removeVal);
         bool empty() const { return _tree.isEmpty() == nullptr; }
         int size() const { return _tree.size(); }
-        
+
         Iterator begin() const;
         Iterator end() const;
 
@@ -75,6 +75,7 @@ template <typename T>
 typename MySet<T>::Iterator& MySet<T>::Iterator::operator++()
 {
     typename BSTree<T>::Node* temp;
+
     if(_currNode == nullptr)
     {
         _currNode = _set->_tree.getRoot();
@@ -100,11 +101,12 @@ typename MySet<T>::Iterator& MySet<T>::Iterator::operator++()
     }
     else
     {
-        temp = _currNode->parent;
+        temp = _set->_tree.findParent(_currNode->value);
+
         while(temp != nullptr && _currNode == temp->right)
         {
             _currNode = temp;
-            temp = temp->parent;
+            temp = _set->_tree.findParent(temp->value);
         }
 
         _currNode = temp;
@@ -121,7 +123,7 @@ typename MySet<T>::Iterator MySet<T>::Iterator::operator++(int)
 }
 
 template <typename T>
-auto MySet<T>::Iterator::operator*() const -> T&
+auto MySet<T>::Iterator::operator*() const -> const T&
 {
     if(_currNode != nullptr)
         return _currNode->value;
@@ -132,14 +134,14 @@ auto MySet<T>::Iterator::operator*() const -> T&
 }
 
 template <typename T>
-auto MySet<T>::Iterator::operator->() const -> T*
+auto MySet<T>::Iterator::operator->() const -> const T*
 {
     return &_currNode->value;
 }
 
 template <typename T>
-typename MySet<T>::Iterator MySet<T>::begin() const 
-{  
+typename MySet<T>::Iterator MySet<T>::begin() const
+{
     typename BSTree<T>::Node* temp = _tree.getRoot();
     if(temp != nullptr) {
         while(temp->left != nullptr)
@@ -184,7 +186,7 @@ template <typename T>
 std::pair<typename MySet<T>::Iterator, bool> MySet<T>::insert(const T& value)
 {
     typename BSTree<T>::Node* search = _tree.search(value);
-    
+
 	if(search == nullptr)
 	{
 	    typename BSTree<T>::Node* temp = _tree.insert(value);
